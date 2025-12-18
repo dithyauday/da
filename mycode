@@ -1,0 +1,197 @@
+#1 dattime-
+df['Date'] = pd.to_datetime(df['Date'])
+df.set_index('Date', inplace=True)
+df.info()
+
+#2 consmp over time
+import matplotlib.pyplot as plt
+plt.figure(figsize=(12,5))
+plt.plot(df['Consumption'])
+plt.title("Electricity Consumption Over Time")
+plt.xlabel("Year")
+plt.ylabel("Consumption")
+plt.show()
+
+#3
+df['Day'] = df.index.day_name()
+daywise = df.groupby('Day')['Consumption'].mean()
+daywise.plot(kind='bar', figsize=(10,5), title="Day-wise Average Electricity Consumption")
+plt.ylabel("Average Consumption")
+plt.show() 
+
+#4 df[['Consumption', 'Solar', 'Wind']].plot(
+    subplots=True,
+    figsize=(12,8),
+    title=["Electricity Consumption", "Solar Production", "Wind Production"])
+plt.tight_layout()
+plt.show()
+
+#5df[(df.index.month==12)&(df.index.day>=25)]['Consumption'].plot(
+    title="Electricity Consumption – Last Week of December"
+)
+plt.xlabel("Date")
+plt.ylabel("Consumption")
+plt.show()
+
+#6 df[(df.index.year==2017)&(df.index.month<=2)&(df.index.weekday==0)]\
+['Consumption'].plot(marker='o')
+plt.title("Electricity Consumption on Mondays (Jan–Feb 2017)")
+plt.xlabel("Date")
+plt.ylabel("Consumption")
+plt.show()
+
+#7
+mon_2017 = df[
+    (df.index.year == 2017) &
+    (df.index.month <= 2) &
+    (df.index.weekday == 0)]
+plt.figure(figsize=(10,5))
+plt.plot(mon_2017['Consumption'], marker='o')
+plt.title("Electricity Consumption on Mondays (Jan–Feb 2017)")
+plt.xlabel("Date")
+plt.ylabel("Consumption")
+plt.show()  
+
+ #8
+df[['Consumption', 'Wind', 'Solar']].plot(
+    kind='box',
+    subplots=True,
+    figsize=(10,6),
+    title=["Electricity", "Wind", "Solar"])
+plt.tight_layout()
+plt.show()
+
+#9
+sns.boxplot(data=df[['Consumption', 'Wind', 'Solar']])
+plt.show()
+
+#10
+fig, axes = plt.subplots(3, 1, figsize=(8,6))
+for col, ax in zip(['Consumption', 'Wind', 'Solar'], axes):
+    sns.boxplot(data=df, y=col, ax=ax)
+    ax.set_title(col)
+plt.tight_layout()
+plt.show()
+
+califor
+#1
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import LabelEncoder, StandardScaler, RobustScaler
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression, Lasso, Ridge
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+from statsmodels.tools.tools import add_constant
+from sklearn.metrics import r2_score, mean_absolute_error, mean_absolute_percentage_error, mean_squared_error
+df = pd.read_csv("housing.csv")
+
+#2
+df.isna().sum()
+df.total_bedrooms.fillna(df.total_bedrooms.median(), inplace=True)
+
+#3
+fig, ax = plt.subplots(5,2, figsize=(9,9))
+sns.histplot(df['longitude'], kde=True, ax=ax[0,0])
+...
+sns.histplot(df['median_house_value'], kde=True, ax=ax[4,0])
+plt.tight_layout()
+
+#4 sns.set(font_scale=1.2)
+sns.catplot( df, x='ocean_proximity', y='median_house_value', hue='ocean_proximity', 
+            kind='bar', palette='Set1', legend=False,
+            height=8, aspect=1.5).set_xticklabels(rotation=45)
+plt.tight_layout()
+plt.show()
+
+#5
+!pip install datasist
+from datasist.structdata import detect_outliers
+outliers = detect_outliers(
+    df, 0,
+    ['total_rooms','total_bedrooms','population',
+     'households','median_income','median_house_value']
+)
+df = df.drop(outliers)
+plt.show()
+
+#6  le = LabelEncoder()
+df['ocean_proximity'] = le.fit_transform(df['ocean_proximity'])
+plt.figure(figsize=(10,8))
+sns.heatmap(df.corr(), annot=True, cmap='coolwarm')
+plt.show()
+
+#7 X = df.drop('median_house_value', axis=1)
+y = df['median_house_value']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=123)
+X_train = StandardScaler().fit_transform(X_train)
+X_test = StandardScaler().fit_transform(X_test)
+model = LinearRegression()
+model.fit(X_train, y_train)
+print(model.score(X_train, y_train))
+print(model.score(X_test, y_test))
+
+#8
+XVIF = add_constant(df)
+VIF = pd.Series([variance_inflation_factor(XVIF.values, i) for i in range(XVIF.shape[1])], index=XVIF.columns)
+VIF
+
+#9 
+X1 = df.drop(columns=['longitude'])
+x_train, x_test, y_train, y_test = train_test_split(X1, y, test_size=0.3, random_state=123)
+LR = LinearRegression()
+LR.fit(x_train, y_train)
+print(LR.score(x_train, y_train))
+print(LR.score(x_train, y_train))
+lr = LinearRegression()
+lr.fit(x_train, y_train)
+y_pred = lr.predict(x_test)
+evaluate = pd.DataFrame({'Actual': y_test.values.flatten(), 'Predicted': y_pred.flatten()})
+evaluate.head(10)
+evaluate.head(10).plot(kind='bar')
+print(mean_absolute_error(y_test, y_pred))
+print(mean_squared_error(y_test, y_pred))
+
+stock price
+#1 df = pd.read_csv('stock_price.csv')
+df['Date'] = pd.to_datetime(df['Date'])
+df.set_index('Date', inplace=True)
+df = df.drop(columns=['Adj Close'])
+print(df.head())
+#2
+print(df.isnull().sum())
+df.dropna(inplace=True)
+#3
+plt.figure(figsize=(12,6))
+plt.plot(df['Close'])
+plt.title("Closing Price Over Time")
+plt.xlabel("Date")
+plt.ylabel("Close Price")
+plt.show()
+#4
+plt.figure(figsize=(12,4))
+plt.plot(df['Volume'], label='Volume')
+plt.title('Trading Volume Over Time')
+plt.xlabel('Date')
+plt.ylabel('Volume')
+plt.show()
+#5
+df['Rolling Mean'] = df['Close'].rolling(30).mean()
+plt.figure(figsize=(12,6))
+plt.plot(df['Close'], label='Close')
+plt.plot(df['Rolling Mean'], label='30-Day Mean')
+plt.title('Closing Price with Rolling Mean')
+plt.xlabel('Date')
+plt.ylabel('Price')
+plt.show()
+#6 
+df[['Open', 'High', 'Low', 'Close']].plot(figsize=(12,6),alpha=0.5)
+plt.title("Stock Price Trends")
+plt.xlabel("Date")
+plt.ylabel("Price")
+plt.show()
+#7
+weekly_high = df['High'].resample('W').mean()
+print(weekly_high.head())
+
