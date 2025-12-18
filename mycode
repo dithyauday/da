@@ -194,4 +194,10 @@ plt.show()
 #7
 weekly_high = df['High'].resample('W').mean()
 print(weekly_high.head())
+ autom
+#1 df["price_mean_transform"] = df.groupby(["body-style","drive-wheels"])["price"].transform("mean")
+df[["body-style","drive-wheels","price","price_mean_transform"]].head()
 
+#2
+print(pd.crosstab([df["make"], df["num-of-doors"]],
+                  [df["body-style"], df["drive-wheels"]]))
